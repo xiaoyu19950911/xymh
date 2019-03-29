@@ -1,11 +1,12 @@
 package com.xiaoyu.poi;
 
 import org.apache.poi.POIXMLDocument;
-import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.apache.poi.xwpf.usermodel.*;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFPictureData;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 
 import java.io.File;
@@ -33,7 +34,7 @@ public class WordHandle {
                 List<XWPFPictureData> pictures=document.getAllPictures();
                 Map<String, String> map = new HashMap<String, String>();
                 for (XWPFPictureData picture:pictures){
-                    String id = picture.getParent().getRelationId(picture);
+                    String id = picture.getParent().getRelationId(picture);//图片id
                     File folder = new File("E://qwe//");
                     if (!folder.exists()) {
                         folder.mkdirs();
@@ -59,8 +60,8 @@ public class WordHandle {
                     StringBuilder output=new StringBuilder();
                     for (XWPFRun run:runsLists){
 
-                        if(run.getCTR().xmlText().indexOf("<w:drawing>")!=-1){
-                            String runXmlText = run.getCTR().xmlText();
+                        String runXmlText = run.getCTR().xmlText();
+                        if(runXmlText.indexOf("<w:drawing>")!=-1){
                             int rIdIndex = runXmlText.indexOf("r:embed");
                             int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
                             String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
@@ -68,8 +69,7 @@ public class WordHandle {
                             String id = rIdText.split("\"")[1];
                             //System.out.println(map.get(id));
                             output = output .append("<img src = '"+map.get(id)+"'/>");
-                        }else if (run.getCTR().xmlText().indexOf("<w:pict>")!=-1){
-                            String runXmlText = run.getCTR().xmlText();
+                        }else if (runXmlText.indexOf("<w:pict>")!=-1){
                             int rIdIndex = runXmlText.indexOf("r:id");
                             int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
                             String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
