@@ -5,16 +5,17 @@ import org.apache.poi.POIXMLTextExtractor;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
-import org.apache.poi.xwpf.usermodel.UnderlinePatterns;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPPr;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class WordHandle {
 
@@ -29,6 +30,25 @@ public class WordHandle {
             } else if (path.endsWith("docx")) {
                 OPCPackage opcPackage = POIXMLDocument.openPackage(path);
                 XWPFDocument document = new XWPFDocument(opcPackage);
+                List<XWPFPictureData> pictures=document.getAllPictures();
+                Map<String, String> map = new HashMap<String, String>();
+                for (XWPFPictureData picture:pictures){
+                    String id = picture.getParent().getRelationId(picture);
+                    File folder = new File("E://qwe//");
+                    if (!folder.exists()) {
+                        folder.mkdirs();
+                    }
+                    String rawName = picture.getFileName();
+                    String fileExt = rawName.substring(rawName.lastIndexOf("."));
+                    String newName = System.currentTimeMillis() + UUID.randomUUID().toString() + fileExt;
+                    File saveFile = new File("E://qwe//" + File.separator + newName);
+                    //@SuppressWarnings("resource")
+                    FileOutputStream fos = new FileOutputStream(saveFile);
+                    fos.write(picture.getData());
+                    //System.out.println(id);
+                    //System.out.println(saveFile.getAbsolutePath());
+                    map.put(id,saveFile.getAbsolutePath());
+                }
                 List<XWPFParagraph> paragraphs = document.getParagraphs();
                 System.out.println(paragraphs.size());
                 for (int i = 1; i < paragraphs.size(); i++) {
@@ -37,12 +57,33 @@ public class WordHandle {
                     CTPPr PR = paragraph.getCTP().getPPr();
                     List<XWPFRun> runsLists = paragraph.getRuns();//获取段楼中的句列表
                     StringBuilder output=new StringBuilder();
-                    for (XWPFRun runList:runsLists){
-                        String c=runList.getColor();
-                        String f=runList.getFontName();
-                        int size=runList.getFontSize();
-                        String runText=runList.text();
-                        if (runList.getUnderline().getValue()==1)
+                    for (XWPFRun run:runsLists){
+
+                        if(run.getCTR().xmlText().indexOf("<w:drawing>")!=-1){
+                            String runXmlText = run.getCTR().xmlText();
+                            int rIdIndex = runXmlText.indexOf("r:embed");
+                            int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
+                            String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
+                            //System.out.println(rIdText.split("\"")[1].substring("rId".length()));
+                            String id = rIdText.split("\"")[1];
+                            //System.out.println(map.get(id));
+                            output = output .append("<img src = '"+map.get(id)+"'/>");
+                        }else if (run.getCTR().xmlText().indexOf("<w:pict>")!=-1){
+                            String runXmlText = run.getCTR().xmlText();
+                            int rIdIndex = runXmlText.indexOf("r:id");
+                            int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
+                            String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
+                            //System.out.println(rIdText.split("\"")[1].substring("rId".length()));
+                            String id = rIdText.split("\"")[1];
+                            //System.out.println(map.get(id));
+                            output = output .append("<img src = '"+map.get(id)+"'/>");
+                        }
+
+                        String c=run.getColor();
+                        String f=run.getFontName();
+                        int size=run.getFontSize();
+                        String runText=run.text();
+                        if (run.getUnderline().getValue()==1)
                             runText="<u>"+runText+"</u>";
                         output=output.append(runText);
                     }
@@ -63,7 +104,7 @@ public class WordHandle {
 
     public static void main(String[] args) {
         WordHandle tp = new WordHandle();
-        String content = tp.readWord("D:\\xymh\\云教案模块测试\\英-6-阶段及期中期末复习-6AU1-U3阶段复习-王娟.docx");
+        String content = tp.readWord("D:\\xymh\\云教案模块测试\\数—11秋—平面向量—向量的数量积—平面向量数量积的运算（C）.docx");
         System.out.println("content====" + content);
     }
 
