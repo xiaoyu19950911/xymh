@@ -14,13 +14,15 @@ public enum LableEnum {
     SSZJ("MODULE","师生总结"),
     ZZGG("MODULE","自主巩固"),
     DIFFICULTY("DIFFICULTY","难度"),
-    ANSWER("ANSWER","答案")
+    ANSWER("ANSWER","答案"),
+    STUDENT_DISABLE_BEGIN("STUDENT_DISABLE_BEGIN","学生不可见开始"),
+    STUDENT_DISABLE_END("STUDENT_DISABLE_END","学生不可见结束")
     ;
     
     String type;
     String name;
 
-    private static Map<String, String> typeMap = new HashMap();
+    public static Map<String, String> typeMap = new HashMap();
 
     static {
         LableEnum[] arr$ = values();
