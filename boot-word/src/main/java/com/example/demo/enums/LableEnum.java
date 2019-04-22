@@ -1,6 +1,4 @@
-package com.xiaoyu.poi;
-
-import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
+package com.example.demo.enums;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +33,7 @@ public enum LableEnum {
     }
 
 
-    LableEnum(String type,String name){
+    LableEnum(String type, String name){
         this.type=type;
         this.name=name;
     }

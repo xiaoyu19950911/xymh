@@ -1,8 +1,6 @@
-package com.xiaoyu.poi;
+package com.example.demo.entity.project;
 
-import java.util.List;
-
-public class TableJson {
+public class Table {
 
     private String TableJson;//表格
 
@@ -16,7 +14,7 @@ public class TableJson {
 
     @Override
     public String toString() {
-        return "TableJson{" +
+        return "Table{" +
                 "TableJson='" + TableJson + '\'' +
                 '}';
     }

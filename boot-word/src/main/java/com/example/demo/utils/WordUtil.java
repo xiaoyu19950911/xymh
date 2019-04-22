@@ -1,20 +1,24 @@
-package com.xiaoyu.poi;
+package com.example.demo.utils;
 
-import net.sf.json.JSONObject;
+import com.example.demo.entity.project.Exercise;
+import com.example.demo.entity.project.Photo;
+import com.example.demo.entity.project.Table;
+import com.example.demo.enums.LableEnum;
 import org.apache.poi.POIXMLDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.*;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WordHandle {
+public class WordUtil {
 
     private static Map<String, String> subjectMap = new HashMap<>();
 
@@ -37,7 +41,7 @@ public class WordHandle {
             } else if (path.endsWith("docx")) {
                 OPCPackage opcPackage = POIXMLDocument.openPackage(path);
                 XWPFDocument document = new XWPFDocument(opcPackage);
-                Map<String, PhotoJson> photoMap = new HashMap<String, PhotoJson>();//图片容器
+                Map<String, Photo> photoMap = new HashMap<String, Photo>();//图片容器
                 readPictures(photoMap, document);//读取图片
                 List<String> tableList = new ArrayList<String>();//表格容器
                 readTable(tableList, document);//读取表格
@@ -49,14 +53,14 @@ public class WordHandle {
                 int count = 0;
                 String lable = "";
                 String module = "";
-                List<JSONObject> title = null;
-                List<JSONObject> pExerciseContent = null;//大题型
+                List<Object> title = null;
+                List<Object> pExerciseContent = null;//大题型
                 String pExerciseStr = null;//大题型文本
                 String cExerciseStr = null;//小题型文本
-                List<JSONObject> cExerciseContent = null;//小题型
-                List<JSONObject> answerContent = new ArrayList<>();//答案
+                List<Object> cExerciseContent = null;//小题型
+                List<Object> answerContent = new ArrayList<>();//答案
                 String answerStr = "无";//答案
-                List<JSONObject> difficutyContent = new ArrayList<>();//难度
+                List<Object> difficutyContent = new ArrayList<>();//难度
                 String difficutyStr = "3";//难度
                 boolean isDisable = false;
                 for (XWPFParagraph paragraph : paragraphs) {
@@ -88,7 +92,7 @@ public class WordHandle {
 
                                 module = info;
                                 //存储模块信息
-                                List<JSONObject> moduleJson = xWPFParagraphToJson(paragraph, photoMap, tableList);//模块
+                                List<Object> moduleJson = xWPFParagraphToJson(paragraph, photoMap, tableList);//模块
                                 System.out.println("模块：" + module);
                             } else if ("STUDENT_DISABLE_BEGIN".equals(type)) {//学生不可见开始
                                 isDisable = true;
@@ -184,7 +188,7 @@ public class WordHandle {
         }
     }
 
-    private void readPictures(Map<String, PhotoJson> photoMap, XWPFDocument document) throws IOException {
+    private void readPictures(Map<String, Photo> photoMap, XWPFDocument document) throws IOException {
         List<XWPFPictureData> pictures = document.getAllPictures();
         for (XWPFPictureData picture : pictures) {
             String id = picture.getParent().getRelationId(picture);//图片id
@@ -205,7 +209,7 @@ public class WordHandle {
                 //System.out.println(id);
                 //System.out.println(saveFile.getAbsolutePath());
                 String url = saveFile.getAbsolutePath();
-                PhotoJson photoJson = new PhotoJson();
+                Photo photoJson = new Photo();
                 photoJson.setUrl(url);
                 BufferedImage bufferedImage = ImageIO.read(new FileInputStream(saveFile));
                 photoJson.setHeight(bufferedImage.getHeight());
@@ -216,9 +220,9 @@ public class WordHandle {
         }
     }
 
-    private List<JSONObject> xWPFParagraphToJson(XWPFParagraph paragraph, Map<String, PhotoJson> photoMap, List<String> tableList) {
+    private List<Object> xWPFParagraphToJson(XWPFParagraph paragraph, Map<String, Photo> photoMap, List<String> tableList) {
         List<XWPFRun> runsLists = paragraph.getRuns();//获取段楼中的句列表
-        List<JSONObject> jsonObjectList = new ArrayList<>();
+        List<Object> jsonObjectList = new ArrayList<>();
         for (XWPFRun run : runsLists) {
             String runXmlText = run.getCTR().xmlText();
             String text = paragraph.getText().trim();
@@ -227,26 +231,26 @@ public class WordHandle {
                 int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
                 String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
                 String id = rIdText.split("\"")[1];
-                PhotoJson photoJson = photoMap.get(id);
+                Photo photoJson = photoMap.get(id);
                 String filePath = photoJson.getUrl();
                 if (filePath != null && (filePath.endsWith("png") || filePath.endsWith("gif") || filePath.endsWith("jpg")))
-                    jsonObjectList.add(JSONObject.fromObject(photoJson));
+                    jsonObjectList.add(photoJson);
             } else if (runXmlText.contains("<w:pict>")) {//图片
                 int rIdIndex = runXmlText.indexOf("r:id");
                 int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
                 String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
                 String id = rIdText.split("\"")[1];
-                PhotoJson photoJson = photoMap.get(id);
+                Photo photoJson = photoMap.get(id);
                 String filePath = photoJson.getUrl();
                 if (filePath != null && (filePath.endsWith("png") || filePath.endsWith("gif") || filePath.endsWith("jpg")))
-                    jsonObjectList.add(JSONObject.fromObject(photoJson));
+                    jsonObjectList.add(photoJson);
             } else if (paragraph.getFontAlignment() == 2 && text.contains("表-")) {
-                TableJson tableJson = new TableJson();
+                Table tableJson = new Table();
                 tableJson.setTableJson(tableList.get(0));
-                jsonObjectList.add(JSONObject.fromObject(tableJson));
+                jsonObjectList.add(tableJson);
                 tableList.remove(0);
             } else {
-                ExerciseJson exerciseJson = new ExerciseJson();
+                Exercise exerciseJson = new Exercise();
                 exerciseJson.setBold(run.isBold());
                 exerciseJson.setFontColor(run.getColor());
                 exerciseJson.setFontName(run.getFontName());
@@ -255,12 +259,12 @@ public class WordHandle {
                 exerciseJson.setText(run.text());
                 exerciseJson.setUnderlinePatterns(run.getUnderline().getValue());
                 exerciseJson.setVerticalAlign(paragraph.getFontAlignment());
-                jsonObjectList.add(JSONObject.fromObject(exerciseJson));
+                jsonObjectList.add(exerciseJson);
             }
             if (text.contains("【")&&text.contains(".mp3】")){
                 String fileName=text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
                 String url=fileName;//查找对应的url
-                ExerciseJson exerciseJson = new ExerciseJson();
+                Exercise exerciseJson = new Exercise();
                 exerciseJson.setBold(run.isBold());
                 exerciseJson.setFontColor(run.getColor());
                 exerciseJson.setFontName(run.getFontName());
@@ -269,7 +273,7 @@ public class WordHandle {
                 exerciseJson.setText(url);
                 exerciseJson.setUnderlinePatterns(run.getUnderline().getValue());
                 exerciseJson.setVerticalAlign(paragraph.getFontAlignment());
-                jsonObjectList.add(JSONObject.fromObject(exerciseJson));
+                jsonObjectList.add(exerciseJson);
             }
         }
         return jsonObjectList;
@@ -302,8 +306,7 @@ public class WordHandle {
     }
 
     public static void main(String[] args) {
-
-        WordHandle tp = new WordHandle();
+        WordUtil tp = new WordUtil();
         String content = tp.readWord("C:\\Users\\Administrator\\Desktop\\word样板（英语）.docx");
         System.out.println("content====" + content);
     }

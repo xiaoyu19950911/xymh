@@ -1,6 +1,6 @@
-package com.xiaoyu.poi;
+package com.example.demo.entity.project;
 
-public class ExerciseJson {
+public class Exercise {
 
     private String text;//文本内容
 
@@ -84,7 +84,7 @@ public class ExerciseJson {
 
     @Override
     public String toString() {
-        return "ExerciseJson{" +
+        return "Exercise{" +
                 "text='" + text + '\'' +
                 ", verticalAlign=" + verticalAlign +
                 ", fontColor='" + fontColor + '\'' +

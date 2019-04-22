@@ -1,6 +1,6 @@
-package com.xiaoyu.poi;
+package com.example.demo.entity.project;
 
-public class PhotoJson {
+public class Photo {
 
     private String url;
 
@@ -34,7 +34,7 @@ public class PhotoJson {
 
     @Override
     public String toString() {
-        return "PhotoJson{" +
+        return "Photo{" +
                 "url='" + url + '\'' +
                 ", width=" + width +
                 ", height=" + height +
