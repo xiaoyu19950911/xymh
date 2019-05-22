@@ -16,7 +16,7 @@ public class WordController {
 
     @PostMapping("/importWords")
     public String importWords(@RequestBody ImportWordsRequest request) throws Exception {
-        wordService.importWords(request.getPathList());
+        wordService.importWords(request.getDocumentIdList());
         return "success!";
     }
 

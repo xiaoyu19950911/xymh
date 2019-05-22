@@ -15,6 +15,8 @@ public class Document {
     @GenericGenerator(name = "generateIdStrategy",strategy = "com.example.demo.config.IdGenerator")
     private String id;
 
+    private String title;
+
     private String type;
 
     private Integer subjectId;
@@ -22,6 +24,8 @@ public class Document {
     private String name;
 
     private String status;
+
+    private String path;
 
     private Date createTime;
 
@@ -83,6 +87,22 @@ public class Document {
         this.updateTime = updateTime;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     @Override
     public String toString() {
         return "Document{" +
@@ -91,6 +111,7 @@ public class Document {
                 ", subjectId=" + subjectId +
                 ", name='" + name + '\'' +
                 ", status='" + status + '\'' +
+                ", path='" + path + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 '}';

@@ -4,20 +4,20 @@ import java.util.List;
 
 public class ImportWordsRequest {
 
-    private List<String> pathList;
+    private List<String> documentIdList;
 
-    public List<String> getPathList() {
-        return pathList;
+    public List<String> getDocumentIdList() {
+        return documentIdList;
     }
 
-    public void setPathList(List<String> pathList) {
-        this.pathList = pathList;
+    public void setDocumentIdList(List<String> documentIdList) {
+        this.documentIdList = documentIdList;
     }
 
     @Override
     public String toString() {
         return "ImportWordsRequest{" +
-                "pathList=" + pathList +
+                "documentIdList=" + documentIdList +
                 '}';
     }
 }

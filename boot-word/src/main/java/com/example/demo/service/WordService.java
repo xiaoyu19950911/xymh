@@ -4,5 +4,5 @@ import java.io.IOException;
 import java.util.List;
 
 public interface WordService {
-    void importWords(List<String> pathList) throws Exception;
+    void importWords(List<String> documentIdList) throws Exception;
 }

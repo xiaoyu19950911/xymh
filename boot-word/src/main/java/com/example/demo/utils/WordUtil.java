@@ -21,13 +21,15 @@ import java.util.regex.Pattern;
 
 public class WordUtil {
 
-    @Autowired
-    DocumentRepository documentRepository;
-
     private static Map<String, String> subjectMap = new HashMap<>();
 
     static {
         subjectMap.put("语文", "11000010000080000000000000000001");
+        subjectMap.put("数学", "11000010000080000000000000000002");
+        subjectMap.put("英语", "11000010000080000000000000000003");
+        subjectMap.put("化学", "11000010000080000000000000000004");
+        subjectMap.put("物理", "11000010000080000000000000000005");
+        subjectMap.put("生物", "11000010000080000000000000000006");
     }
 
     public static Map<String, Photo> readPictures(XWPFDocument document) throws IOException {
@@ -88,15 +90,16 @@ public class WordUtil {
                 buffer = ex.getText();
                 ex.close();
             } else if (path.endsWith("docx")) {
-                OPCPackage opcPackage = POIXMLDocument.openPackage(path);
-                XWPFDocument document = new XWPFDocument(opcPackage);
-                Map<String, Photo> photoMap = readPictures(document);//图片容器
-                List<String> tableList = readTable(document);//表格容器
+                InputStream is = new FileInputStream(path);
+                XWPFDocument document = new XWPFDocument(is);
+                Map<String, Photo> photoMap = WordUtil.readPictures(document);//读取图片
+                List<String> tableList = WordUtil.readTable(document);//读取表格
+                List<XWPFParagraph> paragraphs = document.getParagraphs();//解析word
+                is.close();
                 Map<String, Object> documentMap = new HashMap<String, Object>();
                 documentMap.put("type", suffix);//文档类型
                 documentMap.put("subjectId", subjectMap.get(subjectName));
                 documentMap.put("documentName", documentName);
-                List<XWPFParagraph> paragraphs = document.getParagraphs();
                 int count = 0;
                 String lable = "";
                 String module = "";
@@ -226,7 +229,7 @@ public class WordUtil {
         return buffer;
     }
 
-    public List<Object> xWPFParagraphToJson(XWPFParagraph paragraph, Map<String, Photo> photoMap, List<String> tableList) {
+    public static List<Object> xWPFParagraphToJson(XWPFParagraph paragraph, Map<String, Photo> photoMap, List<String> tableList) {
         List<XWPFRun> runsLists = paragraph.getRuns();//获取段楼中的句列表
         List<Object> jsonObjectList = new ArrayList<>();
         for (XWPFRun run : runsLists) {

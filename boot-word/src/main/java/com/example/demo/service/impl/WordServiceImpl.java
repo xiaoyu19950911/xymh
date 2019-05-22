@@ -15,10 +15,10 @@ public class WordServiceImpl implements WordService {
     WordAsync wordAsync;
 
     @Override
-    public void importWords(List<String> pathList) throws Exception {
+    public void importWords(List<String> documentIdList) throws Exception {
 
-        for (String path:pathList){
-            wordAsync.handleWord(path);
+        for (String documentId:documentIdList){
+            wordAsync.handleWord(documentId);
         }
     }
 }
