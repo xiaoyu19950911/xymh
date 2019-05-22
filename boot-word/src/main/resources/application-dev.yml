@@ -1,0 +1,34 @@
+server:
+  port: 8081
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect #���������Ĭ��Ϊmyisam����
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/document?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC
+    username: root
+    password: 123456
+    type: org.apache.commons.dbcp2.BasicDataSource
+    dbcp2:
+      default-auto-commit: true
+      initial-size: 30
+      max-total: 120
+      max-idle: 120
+      min-idle: 30
+      max-wait-millis: 10000
+      validation-query: 'SELECT 1'
+      validation-query-timeout: 3
+      test-on-borrow: true
+      test-while-idle: true
+      time-between-eviction-runs-millis: 10000
+      num-tests-per-eviction-run: 10
+      min-evictable-idle-time-millis: 120000
+      remove-abandoned-on-borrow: true
+      remove-abandoned-timeout: 120
+      pool-prepared-statements: true
+  jackson:
+    time-zone: GMT+8
+    date-format: java.text.SimpleDateFormat
