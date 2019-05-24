@@ -68,6 +68,7 @@ public class WordHandle {
                             title = xWPFParagraphToJson(paragraph, photoMap, tableList);//标题
                             System.out.println("标题："+text);
                         }
+
                         if (text.contains("【") && text.contains("】")) {
                             String info = text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
                             String type = LableEnum.typeMap.get(info);
@@ -154,6 +155,10 @@ public class WordHandle {
         return buffer;
     }
 
+    private void handleParagraphs(List<XWPFParagraph> moduleParagraphs) {
+
+    }
+
     private void readTable(List<String> tableList, XWPFDocument document) throws Exception {
         Iterator<XWPFTable> it = document.getTablesIterator();
         while (it.hasNext()) {
@@ -169,7 +174,7 @@ public class WordHandle {
             String id = picture.getParent().getRelationId(picture);//图片id
             String fileExtension = picture.suggestFileExtension();
             if ("png".equals(fileExtension) || "gif".equals(fileExtension)|| "jpg".equals(fileExtension)) {
-                File folder = new File("E://qwe//");
+                File folder = new File("F://qwe//");
                 if (!folder.exists()) {
                     folder.mkdirs();
                 }
@@ -177,7 +182,7 @@ public class WordHandle {
                 String rawName = picture.getFileName();
                 String fileExt = rawName.substring(rawName.lastIndexOf("."));
                 String newName = System.currentTimeMillis() + UUID.randomUUID().toString() + fileExt;
-                File saveFile = new File("E://qwe//" + File.separator + newName);
+                File saveFile = new File("F://qwe//" + File.separator + newName);
                 //@SuppressWarnings("resource")
                 FileOutputStream fos = new FileOutputStream(saveFile);
                 fos.write(picture.getData());
@@ -268,7 +273,7 @@ public class WordHandle {
 
     public static void main(String[] args) {
         WordHandle tp = new WordHandle();
-        String content = tp.readWord("C:\\Users\\Administrator\\Desktop\\word样板（化学）.docx");
+        String content = tp.readWord("C:\\Users\\10154\\Desktop\\化学-模板.docx");
         System.out.println("content====" + content);
     }
 
