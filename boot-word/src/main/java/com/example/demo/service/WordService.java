@@ -1,8 +1,11 @@
 package com.example.demo.service;
 
-import java.io.IOException;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 public interface WordService {
-    void importWords(List<String> documentIdList) throws Exception;
+    void importWords(List<MultipartFile> documentIdList) throws Exception;
+
+    void handler(List<String> documentIdList)  throws Exception;
 }

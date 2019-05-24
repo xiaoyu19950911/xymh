@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class WordUtil {
 
-    private static Map<String, String> subjectMap = new HashMap<>();
+    public static Map<String, String> subjectMap = new HashMap<>();
 
     static {
         subjectMap.put("语文", "11000010000080000000000000000001");
@@ -315,10 +315,9 @@ public class WordUtil {
     }
 
     public static void main(String[] args) {
-        WordUtil tp = new WordUtil();
-        //String content = tp.readWord("C:\\Users\\Administrator\\Desktop\\word样板（英语）.docx");
-        //System.out.println("content====" + content);
-        tp.testDb();
+       String name="三年级-语文-阅读训练理解.docx";
+       String[] s=name.split("-");
+        System.out.println(s[1]);
     }
 
     private void testDb() {

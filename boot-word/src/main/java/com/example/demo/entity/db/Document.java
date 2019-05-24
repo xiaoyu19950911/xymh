@@ -19,7 +19,7 @@ public class Document {
 
     private String type;
 
-    private Integer subjectId;
+    private String subjectId;
 
     private String name;
 
@@ -47,11 +47,11 @@ public class Document {
         this.type = type;
     }
 
-    public Integer getSubjectId() {
+    public String getSubjectId() {
         return subjectId;
     }
 
-    public void setSubjectId(Integer subjectId) {
+    public void setSubjectId(String subjectId) {
         this.subjectId = subjectId;
     }
 
