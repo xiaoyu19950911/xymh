@@ -1,13 +1,11 @@
 package com.example.demo.sync;
 
-import com.example.demo.entity.db.Document;
-import com.example.demo.entity.db.DocumentModule;
-import com.example.demo.entity.db.Exercise;
-import com.example.demo.entity.db.ExerciseFinalAnswer;
+import com.example.demo.entity.db.*;
 import com.example.demo.entity.project.Photo;
 import com.example.demo.enums.LableEnum;
 import com.example.demo.repository.DocumentModuleRepository;
 import com.example.demo.repository.DocumentRepository;
+import com.example.demo.repository.ExerciseExerciseRelationRepository;
 import com.example.demo.repository.ExerciseRepository;
 import com.example.demo.utils.WordUtil;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -39,6 +37,9 @@ public class WordAsync {
     @Autowired
     ExerciseRepository exerciseRepository;
 
+    @Autowired
+    ExerciseExerciseRelationRepository exerciseExerciseRelationRepository;
+
     @Async  //标注使用
     public void handleWord(String documentId) throws Exception {
         Document document = documentRepository.getOne(documentId);
@@ -66,13 +67,38 @@ public class WordAsync {
         Integer seq = 0;
         Exercise pExercise = null;
         Exercise cExercise = null;
-        for (XWPFParagraph paragraph : paragraphs) {
+        List<XWPFParagraph> ZSHLparagraphs;
+        int start;
+        int end=0;
+        for (int i = 0; i < paragraphs.size(); i++) {
+            XWPFParagraph paragraph = paragraphs.get(i);
             String text = paragraph.getParagraphText().trim();
             if (!text.equals("")) {
                 if (text.indexOf("【") == 0 && text.contains("】")) {
                     String info = text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
                     String type = LableEnum.typeMap.get(info);
                     if ("MODULE".equals(type)) {//模块
+                        start=i;
+                        if (info.equals(LableEnum.ZSHL.getName()) && end != 0) {
+                            ZSHLparagraphs = paragraphs.subList(start,end);
+                            end = i;
+                        }
+                        if (info.equals(LableEnum.ZSJG.getName()) && end != 0) {
+                            ZSHLparagraphs = paragraphs.subList(start,end);
+                            end = i;
+                        }
+                        if (info.equals(LableEnum.KTYR.getName()) && end != 0) {
+                            ZSHLparagraphs = paragraphs.subList(start,end);
+                            end = i;
+                        }
+                        if (info.equals(LableEnum.LTFX.getName()) && end != 0) {
+                            ZSHLparagraphs = paragraphs.subList(start,end);
+                            end = i;
+                        }
+
+
+
+
                         if (cExerciseStr != null) {
                             System.out.println("存储小题目：" + cExerciseStr);
                             if (!answerStr.isEmpty()) {
@@ -99,7 +125,7 @@ public class WordAsync {
                     } else if (type != null) {
                         lable = info;
                     }
-                } else if (currentModule!=null) {
+                } else if (currentModule != null) {
                     Pattern pPattern = Pattern.compile("[一二三四五六七八九十百]*、.*");
                     Matcher pMatcher = pPattern.matcher(text);
                     Pattern cPattern = Pattern.compile("[1-9]\\d*(.[1-9]\\d*)*、.*");
@@ -124,17 +150,17 @@ public class WordAsync {
                     } else if (cMatcher.matches()) {
                         //存储上一个大题型
                         //存储上一个小题型
-                        if (pExercise != null){
+                        if (pExercise != null) {
                             pExercise = exerciseRepository.save(pExercise);
                         }
                         if (cExerciseStr != null) {
                             System.out.println("存储小题目：" + cExerciseStr);
                             if (!answerStr.isEmpty()) {
-                                int difficulty=difficutyStr.isEmpty() ? 3 : difficutyStr.length();
+                                int difficulty = difficutyStr.isEmpty() ? 3 : difficutyStr.length();
                                 cExercise.setKpDifficulty(difficulty);
                                 //difficutyStr = difficutyStr.isEmpty() ? "3" : difficutyStr;
                                 //System.out.println("小题目难度：" + difficutyStr);
-                                saveExerciseFinalAnswer(cExercise.getId(),answerStr);
+                                saveExerciseFinalAnswer(cExercise.getId(), answerStr);
                                 System.out.println("小题目答案：" + answerStr);
                                 difficutyStr = "";
                                 answerStr = "";
@@ -142,7 +168,7 @@ public class WordAsync {
                         }
                         cExerciseContent = xWPFParagraphToJson(paragraph, photoMap, tableList);//小题型
                         cExerciseStr = text;
-                        cExercise=initExercise(text,pExercise.getId());
+                        cExercise = initExercise(text, pExercise.getId());
                         pExercise = null;
                         lable = "";
                     } else if ("难度".equals(lable)) {
@@ -217,5 +243,22 @@ public class WordAsync {
         documentModule.setCreateTime(now);
         documentModule.setUpdateTime(now);
         return documentModuleRepository.save(documentModule);
+    }
+
+    private Exercise createExercise(Exercise exercise,String pExerciseId){
+        if (pExerciseId == null){
+            return exerciseRepository.save(exercise);
+        }else {
+            Date now=new Date();
+            ExerciseExerciseRelation relation=new ExerciseExerciseRelation();
+            relation.setExerciseId(pExerciseId);
+            relation.setExerciseIdTo(exercise.getId());
+            relation.setRoleId("CHILD_EXERCISE");
+            relation.setRoleIdTo("WEAK_RELEVANCY");
+            relation.setCreateTime(now);
+            relation.setUpdateTime(now);
+            exerciseExerciseRelationRepository.save(relation);
+            return exerciseRepository.save(exercise);
+        }
     }
 }
