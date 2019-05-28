@@ -21,7 +21,7 @@ public class Exercise {
 
     private String semanticTypes;
 
-    private String knowlegePointIds;
+    private String knowledgePointIds;
 
     private String sourceId;
 
@@ -33,9 +33,10 @@ public class Exercise {
 
     private Integer significance;
 
+    @Column(columnDefinition = "TINYINT", length = 1)
     private Boolean selected;
 
-    @Column(name = "error-prone")
+    @Column(columnDefinition = "TINYINT", length = 1)
     private Boolean errorProne;
 
     private Date createTime;
@@ -48,8 +49,10 @@ public class Exercise {
 
     private Integer kpDifficulty;
 
+    @Column(name = "ABSOLUTE_DIFFICULTY_63")
     private Integer absoluteDifficulty63;
 
+    @Column(name = "ABSOLUTE_DIFFICULTY_54")
     private Integer absoluteDifficulty54;
 
     private BigDecimal scoreWeight;
@@ -80,12 +83,12 @@ public class Exercise {
         this.semanticTypes = semanticTypes;
     }
 
-    public String getKnowlegePointIds() {
-        return knowlegePointIds;
+    public String getKnowledgePointIds() {
+        return knowledgePointIds;
     }
 
-    public void setKnowlegePointIds(String knowlegePointIds) {
-        this.knowlegePointIds = knowlegePointIds;
+    public void setKnowledgePointIds(String knowledgePointIds) {
+        this.knowledgePointIds = knowledgePointIds;
     }
 
     public String getSourceId() {
@@ -222,7 +225,7 @@ public class Exercise {
                 "id='" + id + '\'' +
                 ", formType=" + formType +
                 ", semanticTypes='" + semanticTypes + '\'' +
-                ", knowlegePointIds='" + knowlegePointIds + '\'' +
+                ", knowledgePointIds='" + knowledgePointIds + '\'' +
                 ", sourceId='" + sourceId + '\'' +
                 ", content='" + content + '\'' +
                 ", subjectId=" + subjectId +

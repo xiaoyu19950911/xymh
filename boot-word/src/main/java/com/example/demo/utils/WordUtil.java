@@ -77,9 +77,8 @@ public class WordUtil {
         return tableList;
     }
 
-    public String readWord(String path) {
+    public String readWord(String path)  throws Exception {
         String buffer = "";
-        try {
             String suffix = path.substring(path.lastIndexOf(".") + 1);
             String documentName = path.substring(0, path.lastIndexOf("."));
             //String subjectName = path.substring(0, path.lastIndexOf("-"));
@@ -100,8 +99,6 @@ public class WordUtil {
                 documentMap.put("type", suffix);//文档类型
                 documentMap.put("subjectId", subjectMap.get(subjectName));
                 documentMap.put("documentName", documentName);
-                int count = 0;
-                String lable = "";
                 String module = "";
                 List<Object> title = null;
                 List<Object> pExerciseContent = null;//大题型
@@ -112,20 +109,52 @@ public class WordUtil {
                 String answerStr = "无";//答案
                 List<Object> difficutyContent = new ArrayList<>();//难度
                 String difficutyStr = "3";//难度
-                boolean isDisable = false;
-                for (XWPFParagraph paragraph : paragraphs) {
+                List<XWPFParagraph> ZSHLparagraphs = new ArrayList<>();
+                List<XWPFParagraph> ZSJGparagraphs = new ArrayList<>();
+                List<XWPFParagraph> KTYRparagraphs = new ArrayList<>();
+                List<XWPFParagraph> LTFXparagraphs = new ArrayList<>();
+                List<XWPFParagraph> SSZJparagraphs = new ArrayList<>();
+                List<XWPFParagraph> ZZGGparagraphs = new ArrayList<>();
+                int count = 0;
+                int start = 0;
+                int end = 0;
+                String lable = "";
+                for (int i = 0; i < paragraphs.size(); i++) {
+                    XWPFParagraph paragraph = paragraphs.get(i);
                     String text = paragraph.getParagraphText().trim();
                     if (!text.equals("")) {
-                        if (count == 0) {
-                            title = xWPFParagraphToJson(paragraph, photoMap, tableList);//标题
-                            System.out.println("标题：" + text);
-                        }
-
                         if (text.indexOf("【") == 0 && text.contains("】")) {
                             String info = text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
                             String type = LableEnum.typeMap.get(info);
                             if ("MODULE".equals(type)) {//模块
-                                if (cExerciseStr != null) {
+                                if (count == 0) {
+                                    start = i;
+                                    lable = info;
+                                } else {
+                                    if (lable.equals(LableEnum.ZSHL.getName())) {
+                                        ZSHLparagraphs = paragraphs.subList(start, i);
+                                    }
+                                    if (lable.equals(LableEnum.ZSJG.getName())) {
+                                        ZSJGparagraphs = paragraphs.subList(start, i);
+                                    }
+                                    if (lable.equals(LableEnum.KTYR.getName())) {
+                                        KTYRparagraphs = paragraphs.subList(start, i);
+                                    }
+                                    if (lable.equals(LableEnum.LTFX.getName())) {
+                                        LTFXparagraphs = paragraphs.subList(start, i);
+                                    }
+                                    if (lable.equals(LableEnum.SSZJ.getName())) {
+                                        SSZJparagraphs = paragraphs.subList(start, i);
+                                    }
+                                    if (lable.equals(LableEnum.ZZGG.getName())) {
+                                        ZZGGparagraphs = paragraphs.subList(start, i);
+                                    }
+                                    lable = info;
+                                    start = i;
+                                }
+                                count++;
+
+                               /* if (cExerciseStr != null) {
                                     System.out.println("存储小题目：" + cExerciseStr);
                                     if (!answerStr.isEmpty()) {
                                         difficutyStr = difficutyStr.isEmpty() ? "3" : difficutyStr;
@@ -144,11 +173,7 @@ public class WordUtil {
                                 //存储模块信息
                                 List<Object> moduleJson = xWPFParagraphToJson(paragraph, photoMap, tableList);//模块
                                 System.out.println("模块：" + module);
-                            } else if ("STUDENT_DISABLE_BEGIN".equals(type)) {//学生不可见开始
-                                isDisable = true;
-                            } else if ("STUDENT_DISABLE_END".equals(type)) {//学生不可见结束
-                                isDisable = false;
-                            } else if (type != null) {
+                            }else if (type != null) {
                                 lable = info;
                             }
                         } else if (!module.equals("")) {
@@ -205,28 +230,45 @@ public class WordUtil {
                                 cExerciseContent.addAll(xWPFParagraphToJson(paragraph, photoMap, tableList));
                                 cExerciseStr += text;
                             }
+                        }*/
+                                //count++;
+                            }
                         }
-                        count++;
                     }
-                }
-                if (cExerciseStr != null) {
-                    System.out.println("存储小题目：" + cExerciseStr);
-                    if (!answerStr.isEmpty()) {
-                        difficutyStr = difficutyStr.isEmpty() ? "3" : difficutyStr;
-                        System.out.println("小题目难度：" + difficutyStr);
-                        System.out.println("小题目答案：" + answerStr);
-                    }
-                }
-                document.close();
-            } else {
-                System.out.println("此文件不是word文件！");
+
+
+                            if (i == paragraphs.size() - 1) {
+                                if (lable.equals(LableEnum.ZSHL.getName())) {
+                                    ZSHLparagraphs = paragraphs.subList(start, i);
+                                }
+                                if (lable.equals(LableEnum.ZSJG.getName())) {
+                                    ZSJGparagraphs = paragraphs.subList(start, i);
+                                }
+                                if (lable.equals(LableEnum.KTYR.getName())) {
+                                    KTYRparagraphs = paragraphs.subList(start, i);
+                                }
+                                if (lable.equals(LableEnum.LTFX.getName())) {
+                                    LTFXparagraphs = paragraphs.subList(start, i);
+                                }
+                                if (lable.equals(LableEnum.SSZJ.getName())) {
+                                    SSZJparagraphs = paragraphs.subList(start, i);
+                                }
+                                if (lable.equals(LableEnum.ZZGG.getName())) {
+                                    ZZGGparagraphs = paragraphs.subList(start, i);
+                                }
+                            }
+
+                        }
+                saveExercise(LTFXparagraphs);
+                saveExercise(ZZGGparagraphs);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         return buffer;
+    }
+
+    private void saveExercise(List<XWPFParagraph> ltfXparagraphs) {
+
     }
 
     public static List<Object> xWPFParagraphToJson(XWPFParagraph paragraph, Map<String, Photo> photoMap, List<String> tableList) {
@@ -286,6 +328,40 @@ public class WordUtil {
             }
         }
         return jsonObjectList;
+    }
+
+    public static String xWPFParagraphToXML(XWPFParagraph paragraph, Map<String, Photo> photoMap, List<String> tableList){
+        List<XWPFRun> runsLists = paragraph.getRuns();//获取段楼中的句列表
+        String xmlStr = "";
+        String text = paragraph.getText().trim();
+        for (XWPFRun run : runsLists) {
+            String runXmlText = run.getCTR().xmlText();
+            xmlStr += run.text();
+            if (runXmlText.contains("<w:drawing>")) {//图片
+                int rIdIndex = runXmlText.indexOf("r:embed");
+                int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
+                String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
+                String id = rIdText.split("\"")[1];
+                Photo photoJson = photoMap.get(id);
+                String filePath = photoJson.getUrl();
+                if (filePath != null && (filePath.endsWith("png") || filePath.endsWith("gif") || filePath.endsWith("jpg")))
+                    xmlStr += "<p><image src="+filePath+"/></p>";
+            } else if (runXmlText.contains("<w:pict>")) {//图片
+                int rIdIndex = runXmlText.indexOf("r:id");
+                int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
+                String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
+                String id = rIdText.split("\"")[1];
+                Photo photoJson = photoMap.get(id);
+                String filePath = photoJson.getUrl();
+                if (filePath != null && (filePath.endsWith("png") || filePath.endsWith("gif") || filePath.endsWith("jpg")))
+                    xmlStr += "<p><image src="+filePath+"/></p>";
+            } else if (paragraph.getFontAlignment() == 2 && text.contains("表-")) {
+                xmlStr += tableList.get(0);
+                tableList.remove(0);
+            }
+
+        }
+        return xmlStr;
     }
 
 

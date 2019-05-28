@@ -30,7 +30,8 @@ public class WordServiceImpl implements WordService {
     public void handler(List<String> documentIdList) throws Exception {
 
         for (String documentId : documentIdList) {
-            wordAsync.handleWord(documentId);
+            //wordAsync.handleWord(documentId);
+            wordAsync.handleWord2(documentId);
         }
     }
 

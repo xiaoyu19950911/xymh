@@ -13,8 +13,6 @@ public enum LableEnum {
     ZZGG("MODULE","自主巩固"),
     DIFFICULTY("DIFFICULTY","难度"),
     ANSWER("ANSWER","答案"),
-    STUDENT_DISABLE_BEGIN("STUDENT_DISABLE_BEGIN","学生不可见开始"),
-    STUDENT_DISABLE_END("STUDENT_DISABLE_END","学生不可见结束")
     ;
     
     String type;
