@@ -3,16 +3,11 @@ package com.example.demo.sync;
 import com.example.demo.entity.db.*;
 import com.example.demo.entity.project.Photo;
 import com.example.demo.enums.LableEnum;
-import com.example.demo.repository.DocumentModuleRepository;
-import com.example.demo.repository.DocumentRepository;
-import com.example.demo.repository.ExerciseExerciseRelationRepository;
-import com.example.demo.repository.ExerciseRepository;
+import com.example.demo.repository.*;
 import com.example.demo.utils.WordUtil;
 import com.example.demo.utils.XmlUtil;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.apache.poi.xwpf.usermodel.XWPFPicture;
-import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -39,6 +34,12 @@ public class WordAsync {
 
     @Autowired
     ExerciseExerciseRelationRepository exerciseExerciseRelationRepository;
+
+    @Autowired
+    ExerciseAddInfoRepository exerciseAddInfoRepository;
+
+    @Autowired
+    PassagesRepository passagesRepository;
 
     //@Async  //标注使用
     public void handleWord2(String documentId) throws Exception {
@@ -139,28 +140,35 @@ public class WordAsync {
 
         saveExerciseModule(LTFXparagraphs, documentId, photoMap, tableList, map.get("LTFX"));
         saveExerciseModule(ZZGGparagraphs, documentId, photoMap, tableList, map.get("ZZGG"));
-        saveContentModule(ZSHLparagraphs);
-        saveContentModule(ZSJGparagraphs);
-        saveContentModule(KTYRparagraphs);
-        saveContentModule(SSZJparagraphs);
+        saveContentModule(ZSHLparagraphs,photoMap, tableList);
+        saveContentModule(ZSJGparagraphs,photoMap, tableList);
+        saveContentModule(KTYRparagraphs,photoMap, tableList);
+        saveContentModule(SSZJparagraphs,photoMap, tableList);
     }
 
-    private void saveContentModule(List<XWPFParagraph> paragraphs) {
+    private void saveContentModule(List<XWPFParagraph> paragraphs, Map<String, Photo> photoMap, List<String> tableList) {
+        List<Object> content=new ArrayList<>();
         for (XWPFParagraph paragraph : paragraphs) {
-
+            List<Object> paragraphContent=WordUtil.xWPFParagraphToJson(paragraph,photoMap,tableList);
+            content.addAll(paragraphContent);
         }
+        Passages passages=new Passages();
+        passages.setContent(content);
+        passages.setCreateTime(new Date());
+        passages.setUpdateTime(new Date());
+        passagesRepository.save(passages);
     }
 
     /**
-     * @param str 原字符串
+     * @param str     原字符串
      * @param sToFind 需要查找的字符串
      * @return 返回在原字符串中sToFind出现的次数
      */
-    private int countStr(String str,String sToFind) {
+    private int countStr(String str, String sToFind) {
         int num = 0;
         while (str.contains(sToFind)) {
             str = str.substring(str.indexOf(sToFind) + sToFind.length());
-            num ++;
+            num++;
         }
         return num;
     }
@@ -172,11 +180,11 @@ public class WordAsync {
         String answerStr = "无";//答案
         String lastExerciseStr = "";
         String difficutyStr = "3";//难度
-        List<String> choiceList=new ArrayList<>();
-        Map<String,String> pidMap=new HashMap<>();
+        List<String> choiceList = new ArrayList<>();
+        Map<String, String> pidMap = new HashMap<>();
         for (XWPFParagraph paragraph : paragraphs) {
             //String text = paragraph.getParagraphText().trim();
-            String text=WordUtil.xWPFParagraphToXML(paragraph,photoMap,tableList);
+            String text = WordUtil.xWPFParagraphToXML(paragraph, photoMap, tableList);
             if (!text.equals("")) {
                 if (text.indexOf("【") == 0 && text.contains("】")) {
                     String info = text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
@@ -184,46 +192,73 @@ public class WordAsync {
                     if ("MODULE".equals(type)) {
                         DocumentModule module = saveModule(documentId, info, seq);//存储模块信息
                     } else if (matchExercise(text)) {
-                        if (lastExercise!=null){
-                            lastExercise.setContent(XmlUtil.getXmlStr(lastExerciseStr));
-                            lastExercise=createExercise(lastExercise);
-                            pidMap.put(lastExerciseNumber,lastExercise.getId());
-                            lastExerciseStr="";
+                        if (lastExercise != null) {
+                            String contentXML = XmlUtil.getXmlStr(lastExerciseStr);
+
+                            lastExercise = createExercise(lastExercise, contentXML, choiceList);
+                            pidMap.put(lastExerciseNumber, lastExercise.getId());
+                            lastExerciseStr = "";
                         }
-                        String nowExerciseNumber = text.substring(text.indexOf("】")+1);
-                        String pid=null;
-                        int num=countStr(nowExerciseNumber,"-");
-                        if (num != 0){
-                            pid=pidMap.get(nowExerciseNumber.substring(0,nowExerciseNumber.lastIndexOf("-")));
+                        String nowExerciseNumber = text.substring(text.indexOf("】") + 1);
+                        String pid = null;
+                        int num = countStr(nowExerciseNumber, "-");
+                        if (num != 0) {
+                            pid = pidMap.get(nowExerciseNumber.substring(0, nowExerciseNumber.lastIndexOf("-")));
                         }
-                        lastExerciseNumber = text.substring(text.indexOf("】")+1);
+                        lastExerciseNumber = text.substring(text.indexOf("】") + 1);
                         String semanticTypes = info.substring(text.indexOf("-"));
-                        lastExercise=new Exercise();
+                        lastExercise = new Exercise();
                         lastExercise.setGradeId(1);
                         lastExercise.setSubjectId(1);
                         lastExercise.setSemanticTypes(semanticTypes);
                         lastExercise.setParentId(pid);
                         label = semanticTypes;
-                    }else {
+                    } else {
                         label = info;
                     }
                 } else if ("难度".equals(label)) {
                     difficutyStr += text;
                 } else if ("答案".equals(label)) {
                     answerStr += text;
-                } else if ("选择题".equals(label)){
-                    if (matchChoice(text)){
-                        String choiceStr=XmlUtil.getChoiceStr(text);
+                } else if ("选择题".equals(label)) {
+                    if (matchChoice(text)) {
+                        String choiceStr = XmlUtil.getChoiceStr(text);
                         choiceList.add(choiceStr);
-                    }else {
+                    } else {
                         lastExerciseStr += text;
-                }
-                }else {
+                    }
+                } else {
                     lastExerciseStr += text;
                 }
 
             }
         }
+    }
+
+    private Exercise createExercise(Exercise lastExercise, String contentXML, List<String> choiceList) {
+        Date now = new Date();
+        String contentSourceXml = contentXML;
+        if (!choiceList.isEmpty()) {
+            int contentXMLLength = contentXML.length();
+            contentXML = contentXML.substring(0, contentXMLLength - 12);
+            contentXML += "<choices>";
+            for (String optionXML : choiceList) {
+                contentXML += optionXML;
+            }
+            contentXML += "</choices></statement>";
+        }
+        lastExercise.setContent(contentXML);
+        lastExercise = createExercise(lastExercise);
+
+        ExerciseAddInfo exerciseAddInfo = new ExerciseAddInfo();
+        exerciseAddInfo.setId(lastExercise.getId());
+        exerciseAddInfo.setXmlContent("{\"videoType\":null,\"videos\":[],\"audioType\":null,\"audios\":[],\"xml\":\"" + contentSourceXml + "\"}");
+        exerciseAddInfo.setSeoContent("");
+        exerciseAddInfo.setSearchableContent("");
+        exerciseAddInfo.setCreateTime(now);
+        exerciseAddInfo.setUpdateTime(now);
+        exerciseAddInfoRepository.save(exerciseAddInfo);
+        return lastExercise;
     }
 
     private boolean matchExercise(String text) {
@@ -232,11 +267,6 @@ public class WordAsync {
         return pMatcher.matches();
     }
 
-    public static void main(String[] args) {
-        Pattern pPattern = Pattern.compile("【题目-.*】");
-        Matcher pMatcher = pPattern.matcher("【题目-解答题】");
-        System.out.println(pMatcher.matches());
-    }
 
     private boolean matchChoice(String text) {
         Pattern pPattern = Pattern.compile("[ABCDEFGHIJK].*");
@@ -444,7 +474,7 @@ public class WordAsync {
     }
 
     private Exercise createExercise(Exercise exercise) {
-        String pid=exercise.getParentId();
+        String pid = exercise.getParentId();
         if (pid == null) {
             return exerciseRepository.save(exercise);
         } else {

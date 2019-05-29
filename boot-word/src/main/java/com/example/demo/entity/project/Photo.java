@@ -1,6 +1,10 @@
 package com.example.demo.entity.project;
 
-public class Photo {
+import java.io.Serializable;
+
+public class Photo implements Serializable {
+
+    private static final long serialVersionUID = -214737545254094749L;
 
     private String url;
 

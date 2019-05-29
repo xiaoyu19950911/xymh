@@ -1,6 +1,11 @@
 package com.example.demo.entity.project;
 
-public class Exercise {
+import java.io.Serializable;
+import java.util.Objects;
+
+public class Exercise implements Serializable {
+
+    private static final long serialVersionUID = -1991841622505830805L;
 
     private String text;//文本内容
 
@@ -94,5 +99,25 @@ public class Exercise {
                 ", isItalic=" + isItalic +
                 ", underlinePatterns=" + underlinePatterns +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Exercise exercise = (Exercise) o;
+        return Objects.equals(verticalAlign, exercise.verticalAlign) &&
+                Objects.equals(fontColor, exercise.fontColor) &&
+                Objects.equals(fontName, exercise.fontName) &&
+                Objects.equals(fontSize, exercise.fontSize) &&
+                Objects.equals(isBold, exercise.isBold) &&
+                Objects.equals(isItalic, exercise.isItalic) &&
+                Objects.equals(underlinePatterns, exercise.underlinePatterns);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(verticalAlign, fontColor, fontName, fontSize, isBold, isItalic, underlinePatterns);
     }
 }

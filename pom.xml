@@ -87,6 +87,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.vladmihalcea</groupId>
+            <artifactId>hibernate-types-5</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
 
     </dependencies>
 

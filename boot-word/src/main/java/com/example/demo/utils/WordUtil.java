@@ -283,6 +283,8 @@ public class WordUtil {
                 String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
                 String id = rIdText.split("\"")[1];
                 Photo photoJson = photoMap.get(id);
+                if (photoJson == null)
+                    System.out.println(id);
                 String filePath = photoJson.getUrl();
                 if (filePath != null && (filePath.endsWith("png") || filePath.endsWith("gif") || filePath.endsWith("jpg")))
                     jsonObjectList.add(photoJson);
@@ -301,6 +303,9 @@ public class WordUtil {
                 jsonObjectList.add(tableJson);
                 tableList.remove(0);
             } else {
+                Object lastObject=null;
+                if (jsonObjectList.size()>0)
+                    lastObject=jsonObjectList.get(jsonObjectList.size()-1);
                 Exercise exerciseJson = new Exercise();
                 exerciseJson.setBold(run.isBold());
                 exerciseJson.setFontColor(run.getColor());
@@ -310,7 +315,12 @@ public class WordUtil {
                 exerciseJson.setText(run.text());
                 exerciseJson.setUnderlinePatterns(run.getUnderline().getValue());
                 exerciseJson.setVerticalAlign(paragraph.getFontAlignment());
-                jsonObjectList.add(exerciseJson);
+                if (exerciseJson.equals(lastObject)){
+                    Exercise exercise=(Exercise) lastObject;
+                    exercise.setText(exercise.getText()+exerciseJson.getText());
+                }else {
+                    jsonObjectList.add(exerciseJson);
+                }
             }
             if (text.contains("【")&&text.contains(".mp3】")){
                 String fileName=text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
@@ -340,21 +350,37 @@ public class WordUtil {
             if (runXmlText.contains("<w:drawing>")) {//图片
                 int rIdIndex = runXmlText.indexOf("r:embed");
                 int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
+                int cyIndex = runXmlText.indexOf("cy=\"");
+                int cyEndIndex = runXmlText.indexOf("\"/>",cyIndex);
+                String cyText = runXmlText.substring(cyIndex+4, cyEndIndex);
+                int height=Integer.parseInt(cyText)/9525;//像素*9525=cy,见office官网
+                int cxIndex = runXmlText.indexOf("cx=\"");
+                int cxEndIndex = runXmlText.indexOf("cy=",cxIndex);
+                String cxText = runXmlText.substring(cxIndex+4, cxEndIndex-2);
+                int width=Integer.parseInt(cxText)/9525;//像素*9525=cx,见office官网
                 String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
                 String id = rIdText.split("\"")[1];
                 Photo photoJson = photoMap.get(id);
                 String filePath = photoJson.getUrl();
                 if (filePath != null && (filePath.endsWith("png") || filePath.endsWith("gif") || filePath.endsWith("jpg")))
-                    xmlStr += "<p><image src="+filePath+"/></p>";
+                    xmlStr += "<p><image width=\""+width+"\" height=\""+height+"\" src="+filePath+"/></p>";
             } else if (runXmlText.contains("<w:pict>")) {//图片
                 int rIdIndex = runXmlText.indexOf("r:id");
                 int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
+                int cyIndex = runXmlText.indexOf("cy=\"");
+                int cyEndIndex = runXmlText.indexOf("\"/>",cyIndex);
+                String cyText = runXmlText.substring(cyIndex+4, cyEndIndex);
+                int height=Integer.parseInt(cyText)/9525;
+                int cxIndex = runXmlText.indexOf("cx=\"");
+                int cxEndIndex = runXmlText.indexOf("cy=",cxIndex);
+                String cxText = runXmlText.substring(cxIndex+4, cxEndIndex-2);
+                int width=Integer.parseInt(cxText)/9525;
                 String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
                 String id = rIdText.split("\"")[1];
                 Photo photoJson = photoMap.get(id);
                 String filePath = photoJson.getUrl();
                 if (filePath != null && (filePath.endsWith("png") || filePath.endsWith("gif") || filePath.endsWith("jpg")))
-                    xmlStr += "<p><image src="+filePath+"/></p>";
+                    xmlStr += "<p><image width=\""+width+"\" height=\""+height+"\" src="+filePath+"/></p>";
             } else if (paragraph.getFontAlignment() == 2 && text.contains("表-")) {
                 xmlStr += tableList.get(0);
                 tableList.remove(0);
