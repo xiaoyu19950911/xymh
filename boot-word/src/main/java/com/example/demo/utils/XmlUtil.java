@@ -22,10 +22,13 @@ public class XmlUtil {
     }
 
     public static String getXmlStr(String text) {
-        text=text.replace("(","<choiceblank><p><t>");
-        text=text.replace(")","</t></p></choiceblank>");
-        text=text.replace("（","<choiceblank><p><t>");
-        text=text.replace("）","</t></p></choiceblank>");
+        String trimText = text.trim();
+        if (trimText.contains("()") || trimText.contains("（）")){
+            text=text.replace("(","<choiceblank><p><t>");
+            text=text.replace(")","</t></p></choiceblank>");
+            text=text.replace("（","<choiceblank><p><t>");
+            text=text.replace("）","</t></p></choiceblank>");
+        }
         String xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
         xmlStr += "<statement><p><t>" + text + "</t></p></statement>";
         return xmlStr;

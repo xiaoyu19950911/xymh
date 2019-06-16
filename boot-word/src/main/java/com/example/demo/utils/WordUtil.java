@@ -1,23 +1,19 @@
 package com.example.demo.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.example.demo.entity.db.Document;
 import com.example.demo.entity.project.Exercise;
 import com.example.demo.entity.project.Photo;
 import com.example.demo.entity.project.Table;
-import com.example.demo.enums.LableEnum;
+import com.example.demo.enums.LabelEnum;
 import com.example.demo.repository.DocumentRepository;
-import org.apache.poi.POIXMLDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class WordUtil {
 
@@ -125,28 +121,28 @@ public class WordUtil {
                     if (!text.equals("")) {
                         if (text.indexOf("【") == 0 && text.contains("】")) {
                             String info = text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
-                            String type = LableEnum.typeMap.get(info);
+                            String type = LabelEnum.typeMap.get(info);
                             if ("MODULE".equals(type)) {//模块
                                 if (count == 0) {
                                     start = i;
                                     lable = info;
                                 } else {
-                                    if (lable.equals(LableEnum.ZSHL.getName())) {
+                                    if (lable.equals(LabelEnum.ZSHL.getName())) {
                                         ZSHLparagraphs = paragraphs.subList(start, i);
                                     }
-                                    if (lable.equals(LableEnum.ZSJG.getName())) {
+                                    if (lable.equals(LabelEnum.ZSJG.getName())) {
                                         ZSJGparagraphs = paragraphs.subList(start, i);
                                     }
-                                    if (lable.equals(LableEnum.KTYR.getName())) {
+                                    if (lable.equals(LabelEnum.KTYR.getName())) {
                                         KTYRparagraphs = paragraphs.subList(start, i);
                                     }
-                                    if (lable.equals(LableEnum.LTFX.getName())) {
+                                    if (lable.equals(LabelEnum.LTFX.getName())) {
                                         LTFXparagraphs = paragraphs.subList(start, i);
                                     }
-                                    if (lable.equals(LableEnum.SSZJ.getName())) {
+                                    if (lable.equals(LabelEnum.SSZJ.getName())) {
                                         SSZJparagraphs = paragraphs.subList(start, i);
                                     }
-                                    if (lable.equals(LableEnum.ZZGG.getName())) {
+                                    if (lable.equals(LabelEnum.ZZGG.getName())) {
                                         ZZGGparagraphs = paragraphs.subList(start, i);
                                     }
                                     lable = info;
@@ -238,22 +234,22 @@ public class WordUtil {
 
 
                             if (i == paragraphs.size() - 1) {
-                                if (lable.equals(LableEnum.ZSHL.getName())) {
+                                if (lable.equals(LabelEnum.ZSHL.getName())) {
                                     ZSHLparagraphs = paragraphs.subList(start, i);
                                 }
-                                if (lable.equals(LableEnum.ZSJG.getName())) {
+                                if (lable.equals(LabelEnum.ZSJG.getName())) {
                                     ZSJGparagraphs = paragraphs.subList(start, i);
                                 }
-                                if (lable.equals(LableEnum.KTYR.getName())) {
+                                if (lable.equals(LabelEnum.KTYR.getName())) {
                                     KTYRparagraphs = paragraphs.subList(start, i);
                                 }
-                                if (lable.equals(LableEnum.LTFX.getName())) {
+                                if (lable.equals(LabelEnum.LTFX.getName())) {
                                     LTFXparagraphs = paragraphs.subList(start, i);
                                 }
-                                if (lable.equals(LableEnum.SSZJ.getName())) {
+                                if (lable.equals(LabelEnum.SSZJ.getName())) {
                                     SSZJparagraphs = paragraphs.subList(start, i);
                                 }
-                                if (lable.equals(LableEnum.ZZGG.getName())) {
+                                if (lable.equals(LabelEnum.ZZGG.getName())) {
                                     ZZGGparagraphs = paragraphs.subList(start, i);
                                 }
                             }
@@ -388,6 +384,98 @@ public class WordUtil {
 
         }
         return xmlStr;
+    }
+
+    public static Map<String, Object> xWPFParagraphToTextIncludeFormat(XWPFParagraph paragraph, Map<String, Photo> photoMap, List<String> tableList) {
+        Map<String,Object> map = new HashMap();
+        List<XWPFRun> runsLists = paragraph.getRuns();//获取段楼中的句列表
+        List<Object> jsonObjectList = new ArrayList<>();
+        String xmlStr = "";
+        for (XWPFRun run : runsLists) {
+            String runXmlText = run.getCTR().xmlText();
+            xmlStr += run.text();
+            String text = paragraph.getText().trim();
+            if (runXmlText.contains("<w:drawing>")) {//图片
+                int rIdIndex = runXmlText.indexOf("r:embed");
+                int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
+                int cyIndex = runXmlText.indexOf("cy=\"");
+                int cyEndIndex = runXmlText.indexOf("\"/>", cyIndex);
+                String cyText = runXmlText.substring(cyIndex + 4, cyEndIndex);
+                int height = Integer.parseInt(cyText) / 9525;//像素*9525=cy,见office官网
+                int cxIndex = runXmlText.indexOf("cx=\"");
+                int cxEndIndex = runXmlText.indexOf("cy=", cxIndex);
+                String cxText = runXmlText.substring(cxIndex + 4, cxEndIndex - 2);
+                int width = Integer.parseInt(cxText) / 9525;//像素*9525=cx,见office官网
+                String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
+                String id = rIdText.split("\"")[1];
+                Photo photo = photoMap.get(id);
+                if (photo!=null){
+                    photo.setHeight(height);
+                    photo.setWidth(width);
+                    String filePath = photo.getUrl();
+                    if (filePath != null && (filePath.endsWith("png") || filePath.endsWith("gif") || filePath.endsWith("jpg"))){
+                        xmlStr += "<p><image width=\"" + width + "\" height=\"" + height + "\" src=" + filePath + "/></p>";
+                        jsonObjectList.add(photo);
+                    }
+                }
+
+            } else if (runXmlText.contains("<w:pict>")) {//图片
+                int rIdIndex = runXmlText.indexOf("r:id");
+                int rIdEndIndex = runXmlText.indexOf("/>", rIdIndex);
+                if (rIdIndex!=-1){
+                    String rIdText = runXmlText.substring(rIdIndex, rIdEndIndex);
+                    String id = rIdText.split("\"")[1];
+                    Photo photo = photoMap.get(id);
+                    String filePath = photo.getUrl();
+                    if (filePath != null && (filePath.endsWith("png") || filePath.endsWith("gif") || filePath.endsWith("jpg"))){
+                        xmlStr += "<p><image width=\"" + "null" + "\" height=\"" + "null" + "\" src=" + filePath + "/></p>";
+                        jsonObjectList.add(photo);
+                    }
+                }
+            } else if (paragraph.getFontAlignment() == 2 && text.contains("表-")) {
+                Table tableJson = new Table();
+                tableJson.setTableJson(tableList.get(0));
+                jsonObjectList.add(tableJson);
+                tableList.remove(0);
+            } else {
+                Object lastObject = null;
+                if (jsonObjectList.size() > 0)
+                    lastObject = jsonObjectList.get(jsonObjectList.size() - 1);
+                Exercise exerciseJson = new Exercise();
+                exerciseJson.setBold(run.isBold());
+                exerciseJson.setFontColor(run.getColor());
+                exerciseJson.setFontName(run.getFontName());
+                exerciseJson.setFontSize(run.getFontSize());
+                exerciseJson.setItalic(run.isItalic());
+                exerciseJson.setText(run.text());
+                exerciseJson.setUnderlinePatterns(run.getUnderline().getValue());
+                exerciseJson.setVerticalAlign(paragraph.getFontAlignment());
+                if (exerciseJson.equals(lastObject)) {
+                    Exercise exercise = (Exercise) lastObject;
+                    exercise.setText(exercise.getText() + exerciseJson.getText());
+                } else {
+                    jsonObjectList.add(exerciseJson);
+                }
+            }
+            text = text.replace("（", ")");
+            text = text.replace("）", ")");
+            if (text.contains("(audio=")) {
+                String url = text.substring(text.lastIndexOf("audio=") + 1, text.lastIndexOf(")"));
+                Exercise exerciseJson = new Exercise();
+                exerciseJson.setBold(run.isBold());
+                exerciseJson.setFontColor(run.getColor());
+                exerciseJson.setFontName(run.getFontName());
+                exerciseJson.setFontSize(run.getFontSize());
+                exerciseJson.setItalic(run.isItalic());
+                exerciseJson.setText(url);
+                exerciseJson.setUnderlinePatterns(run.getUnderline().getValue());
+                exerciseJson.setVerticalAlign(paragraph.getFontAlignment());
+                jsonObjectList.add(exerciseJson);
+            }
+        }
+        map.put("jsonStr",jsonObjectList);
+        map.put("xmlStr",xmlStr);
+        return map;
     }
 
 

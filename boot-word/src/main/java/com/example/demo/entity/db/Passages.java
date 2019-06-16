@@ -1,6 +1,5 @@
 package com.example.demo.entity.db;
 
-import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -19,7 +18,6 @@ import java.util.List;
  * @create: 2019-05-29 17:14
  */
 @Entity
-@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class Passages {
 
     @Id

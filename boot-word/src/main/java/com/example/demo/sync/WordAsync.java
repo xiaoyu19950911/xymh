@@ -2,7 +2,7 @@ package com.example.demo.sync;
 
 import com.example.demo.entity.db.*;
 import com.example.demo.entity.project.Photo;
-import com.example.demo.enums.LableEnum;
+import com.example.demo.enums.LabelEnum;
 import com.example.demo.repository.*;
 import com.example.demo.utils.WordUtil;
 import com.example.demo.utils.XmlUtil;
@@ -60,7 +60,6 @@ public class WordAsync {
         List<XWPFParagraph> LTFXparagraphs = new ArrayList<>();
         List<XWPFParagraph> SSZJparagraphs = new ArrayList<>();
         List<XWPFParagraph> ZZGGparagraphs = new ArrayList<>();
-        List<List<XWPFParagraph>> list = new ArrayList<>();
         int count = 0;
         int start = 0;
         int seq = 0;
@@ -72,33 +71,33 @@ public class WordAsync {
             if (!text.equals("")) {
                 if (text.indexOf("【") == 0 && text.contains("】")) {
                     String info = text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
-                    String type = LableEnum.typeMap.get(info);
+                    String type = LabelEnum.typeMap.get(info);
                     if ("MODULE".equals(type)) {//模块
                         if (count == 0) {
                             start = i;
                             label = info;
                         } else {
-                            if (label.equals(LableEnum.ZSHL.getName())) {
+                            if (label.equals(LabelEnum.ZSHL.getName())) {
                                 ZSHLparagraphs = paragraphs.subList(start, i);
                                 map.put("ZSHL", seq);
                             }
-                            if (label.equals(LableEnum.ZSJG.getName())) {
+                            if (label.equals(LabelEnum.ZSJG.getName())) {
                                 ZSJGparagraphs = paragraphs.subList(start, i);
                                 map.put("ZSJG", seq);
                             }
-                            if (label.equals(LableEnum.KTYR.getName())) {
+                            if (label.equals(LabelEnum.KTYR.getName())) {
                                 KTYRparagraphs = paragraphs.subList(start, i);
                                 map.put("KTYR", seq);
                             }
-                            if (label.equals(LableEnum.LTFX.getName())) {
+                            if (label.equals(LabelEnum.LTFX.getName())) {
                                 LTFXparagraphs = paragraphs.subList(start, i);
                                 map.put("LTFX", seq);
                             }
-                            if (label.equals(LableEnum.SSZJ.getName())) {
+                            if (label.equals(LabelEnum.SSZJ.getName())) {
                                 SSZJparagraphs = paragraphs.subList(start, i);
                                 map.put("SSZJ", seq);
                             }
-                            if (label.equals(LableEnum.ZZGG.getName())) {
+                            if (label.equals(LabelEnum.ZZGG.getName())) {
                                 ZZGGparagraphs = paragraphs.subList(start, i);
                                 map.put("ZZGG", seq);
                             }
@@ -111,27 +110,27 @@ public class WordAsync {
                 }
             }
             if (i == paragraphs.size() - 1) {
-                if (label.equals(LableEnum.ZSHL.getName())) {
+                if (label.equals(LabelEnum.ZSHL.getName())) {
                     ZSHLparagraphs = paragraphs.subList(start, i);
                     map.put("ZSHL", seq);
                 }
-                if (label.equals(LableEnum.ZSJG.getName())) {
+                if (label.equals(LabelEnum.ZSJG.getName())) {
                     ZSJGparagraphs = paragraphs.subList(start, i);
                     map.put("ZSJG", seq);
                 }
-                if (label.equals(LableEnum.KTYR.getName())) {
+                if (label.equals(LabelEnum.KTYR.getName())) {
                     KTYRparagraphs = paragraphs.subList(start, i);
                     map.put("KTYR", seq);
                 }
-                if (label.equals(LableEnum.LTFX.getName())) {
+                if (label.equals(LabelEnum.LTFX.getName())) {
                     LTFXparagraphs = paragraphs.subList(start, i);
                     map.put("LTFX", seq);
                 }
-                if (label.equals(LableEnum.SSZJ.getName())) {
+                if (label.equals(LabelEnum.SSZJ.getName())) {
                     SSZJparagraphs = paragraphs.subList(start, i);
                     map.put("SSZJ", seq);
                 }
-                if (label.equals(LableEnum.ZZGG.getName())) {
+                if (label.equals(LabelEnum.ZZGG.getName())) {
                     ZZGGparagraphs = paragraphs.subList(start, i);
                     map.put("ZZGG", seq);
                 }
@@ -188,7 +187,7 @@ public class WordAsync {
             if (!text.equals("")) {
                 if (text.indexOf("【") == 0 && text.contains("】")) {
                     String info = text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
-                    String type = LableEnum.typeMap.get(info);
+                    String type = LabelEnum.typeMap.get(info);
                     if ("MODULE".equals(type)) {
                         DocumentModule module = saveModule(documentId, info, seq);//存储模块信息
                     } else if (matchExercise(text)) {
@@ -310,22 +309,22 @@ public class WordAsync {
             if (!text.equals("")) {
                 if (text.indexOf("【") == 0 && text.contains("】")) {
                     String info = text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
-                    String type = LableEnum.typeMap.get(info);
+                    String type = LabelEnum.typeMap.get(info);
                     if ("MODULE".equals(type)) {//模块
                         start = i;
-                        if (info.equals(LableEnum.ZSHL.getName()) && end != 0) {
+                        if (info.equals(LabelEnum.ZSHL.getName()) && end != 0) {
                             ZSHLparagraphs = paragraphs.subList(start, end);
                             end = i;
                         }
-                        if (info.equals(LableEnum.ZSJG.getName()) && end != 0) {
+                        if (info.equals(LabelEnum.ZSJG.getName()) && end != 0) {
                             ZSHLparagraphs = paragraphs.subList(start, end);
                             end = i;
                         }
-                        if (info.equals(LableEnum.KTYR.getName()) && end != 0) {
+                        if (info.equals(LabelEnum.KTYR.getName()) && end != 0) {
                             ZSHLparagraphs = paragraphs.subList(start, end);
                             end = i;
                         }
-                        if (info.equals(LableEnum.LTFX.getName()) && end != 0) {
+                        if (info.equals(LabelEnum.LTFX.getName()) && end != 0) {
                             ZSHLparagraphs = paragraphs.subList(start, end);
                             end = i;
                         }
