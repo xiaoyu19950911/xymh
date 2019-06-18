@@ -3,7 +3,7 @@ package com.example.demo.enums;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum LableEnum {
+public enum LabelEnum {
 
     ZSHL("MODULE","知识梳理"),
     ZSJG("MODULE","知识结构"),
@@ -21,17 +21,17 @@ public enum LableEnum {
     public static Map<String, String> typeMap = new HashMap();
 
     static {
-        LableEnum[] arr$ = values();
+        LabelEnum[] arr$ = values();
         int len$ = arr$.length;
 
         for(int i$ = 0; i$ < len$; ++i$) {
-            LableEnum p = arr$[i$];
+            LabelEnum p = arr$[i$];
             typeMap.put(p.getName(), p.getType());
         }
     }
 
 
-    LableEnum(String type, String name){
+    LabelEnum(String type, String name){
         this.type=type;
         this.name=name;
     }
