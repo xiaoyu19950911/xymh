@@ -322,8 +322,10 @@ public class WordUtil {
                     jsonObjectList.add(exerciseJson);
                 }
             }
-            if (text.contains("【")&&text.contains(".mp3】")){
-                String fileName=text.substring(text.lastIndexOf("【") + 1, text.lastIndexOf("】"));
+            text=text.replace("（",")");
+            text=text.replace("）",")");
+            if (text.contains("(audio=")){
+                String fileName=text.substring(text.lastIndexOf("audio=") + 1, text.lastIndexOf(")"));
                 String url=fileName;//查找对应的url
                 Exercise exerciseJson = new Exercise();
                 exerciseJson.setBold(run.isBold());

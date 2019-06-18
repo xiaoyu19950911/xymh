@@ -126,6 +126,12 @@
             <version>RELEASE</version>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>net.sf.jacob-project</groupId>
+            <artifactId>jacob</artifactId>
+            <version>1.14.3</version>
+        </dependency>
     </dependencies>
 
     <build>

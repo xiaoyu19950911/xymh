@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class Test2 {
     public static void main(String[] args) throws Exception {
-        readWord("C:\\Users\\Administrator\\Desktop\\test.docx");
+        readWord("C:\\Users\\Administrator\\Desktop\\test\\docx\\test.docx");
     }
 
     private static void readWord(String path) throws Exception {
