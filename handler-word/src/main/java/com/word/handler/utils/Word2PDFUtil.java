@@ -1,11 +1,11 @@
-package com.example.demo.utils;
+package com.word.handler.utils;
 
+import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.ComThread;
 import com.jacob.com.Dispatch;
 import com.jacob.com.Variant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.jacob.activeX.ActiveXComponent;
 
 import java.io.File;
 
@@ -19,49 +19,49 @@ public class Word2PDFUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(Word2PDFUtil.class);
 
-    private final static int Doc = 0;
+    public final static int Doc = 0;
 
-    private final static int Dot = 1;
+    public final static int Dot = 1;
 
-    private final static int Txt_0 = 2;
+    public final static int Txt_0 = 2;
 
-    private final static int Txt_1 = 3;
+    public final static int Txt_1 = 3;
 
-    private final static int Txt_2 = 4;
+    public final static int Txt_2 = 4;
 
-    private final static int Txt_3 = 5;
+    public final static int Txt_3 = 5;
 
-    private final static int Rtf = 6;
+    public final static int Rtf = 6;
 
-    private final static int Txt_4 = 7;
+    public final static int Txt_4 = 7;
 
-    private final static int Htm_0 = 8;
+    public final static int Htm_0 = 8;
 
-    private final static int Htm_1 = 10;
+    public final static int Htm_1 = 10;
 
-    private final static int Xml = 11;
+    public final static int Xml = 11;
 
-    private final static int Docx_0 = 12;
+    public final static int Docx_0 = 12;
 
-    private final static int Docx_1 = 16;
+    public final static int Docx_1 = 16;
 
-    private final static int Docm = 13;
+    public final static int Docm = 13;
 
-    private final static int Dotx = 14;
+    public final static int Dotx = 14;
 
-    private final static int Dotm = 15;
+    public final static int Dotm = 15;
 
-    private final static int Pdf = 17;
+    public final static int Pdf = 17;
 
     public static void main(String[] args) {
-        String sfileName = "C:\\Users\\Administrator\\Desktop\\test\\test.docx";
-        String toFileName = "C:\\Users\\Administrator\\Desktop\\test\\test.pdf";
-        String docxFileName = "C:\\Users\\Administrator\\Desktop\\test\\docx\\test.docx";
-        wordToPDF(sfileName,toFileName,Pdf);
-        wordToPDF(toFileName,docxFileName,Docx_1);
+        String sfileName = "C:\\Users\\Administrator\\Desktop\\test\\test (2).docx";
+        String toFileName = "C:\\Users\\Administrator\\Desktop\\test\\test (2).html";
+        String docxFileName = "C:\\Users\\Administrator\\Desktop\\test\\docx\\test (2).docx";
+        wordSwitch(sfileName,toFileName,Htm_1);
+        wordSwitch(toFileName,docxFileName,Docx_1);
     }
 
-    public static void wordToPDF(String sfileName, String toFileName,int type) {
+    public static void wordSwitch(String sfileName, String toFileName,int type) {
         logger.info("启动Word...");
         long start = System.currentTimeMillis();
         ActiveXComponent app = null;
